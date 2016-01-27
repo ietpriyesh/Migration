@@ -1,0 +1,36 @@
+
+
+CREATE COMPUTE MODULE Publisher_Flow_1_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		
+		
+		CALL CopyEntireMessage();
+		
+		
+		 SET OutputRoot.MQRFH2.psc.Command = 'Publish'; -- Publish is a keyword
+         SET OutputRoot.MQRFH2.psc.Topic = 'Inventory'; ---'COM.MSS.TOPIC';-- --TopicName
+         Declare PTR REFERENCE to OutputRoot.MQRFH2;
+         Detach PTR;
+         attach PTR TO OutputRoot.MQMD AS NEXTSIBLING ;
+		
+		
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
